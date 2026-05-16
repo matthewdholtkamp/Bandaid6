@@ -40,8 +40,11 @@ export default {
       });
     }
 
-    const model = body.model || "gemini-2.5-flash-lite";
+    const model = body.model || "gemini-3.1-flash-lite";
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${env.GEMINI_API_KEY}`;
+
+    // Pass through whatever generationConfig the client sent (temperature, thinkingConfig, etc.)
+    const generationConfig = body.generationConfig || { temperature: 0.4 };
 
     const upstream = await fetch(url, {
       method: "POST",
@@ -49,7 +52,7 @@ export default {
       body: JSON.stringify({
         systemInstruction: body.systemInstruction,
         contents: body.contents,
-        generationConfig: body.generationConfig || { temperature: 0 }
+        generationConfig
       })
     });
 

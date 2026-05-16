@@ -21,18 +21,25 @@ Browser (GitHub Pages)  ───▶  Cloudflare Worker (holds GEMINI_API_KEY)  
 
 ### 1. Deploy the Cloudflare Worker
 
+You have two options.
+
+**Option A — Automatic via GitHub Actions (recommended)**
+
+The `.github/workflows/deploy-worker.yml` workflow deploys the Worker on every push that touches `worker.js` or `wrangler.toml`. It reads three GitHub Secrets:
+
+- `Neurology_API` — your Google AI Studio (Gemini) API key
+- `CLOUDFLARE_API_TOKEN` — Cloudflare API token with Workers Edit permission
+- `CLOUDFLARE_ACCOUNT_ID` — your Cloudflare account ID
+
+Add the two Cloudflare secrets in **Settings → Secrets and variables → Actions**, then push. The workflow uploads `Neurology_API` to the Worker as `GEMINI_API_KEY` and deploys.
+
+**Option B — Manual via Wrangler CLI**
+
 ```bash
 npm install -g wrangler
 wrangler login
-wrangler init bandaid6 --type javascript
-```
-
-Replace the generated `src/index.js` with `worker.js` from this repo, then:
-
-```bash
 wrangler secret put GEMINI_API_KEY
 # paste your Google AI Studio key when prompted
-
 wrangler deploy
 ```
 
@@ -58,6 +65,15 @@ python3 -m http.server 8000
 ```
 
 `localhost:8000` is already in the Worker's allowed origins.
+
+## Model & generation settings
+
+- **Default model:** `gemini-3.1-flash-lite` — swap in the UI dropdown.
+- **Temperature:** `0.4` (set in `config.js`). Low enough to stay in character, high enough for natural variation. Drop to `0.2` for more deterministic answers, raise to `0.7` for more conversational range.
+- **Thinking depth:** Flash Lite supports `thinkingConfig.thinkingBudget`. The UI exposes three options:
+  - **Off** — fastest, cheapest, no extended reasoning.
+  - **Dynamic** (default) — model decides how much to think per turn.
+  - **High** — `thinkingBudget: 8192`, deeper reasoning for nuanced questions (BH, ethics, command).
 
 ## Persona
 

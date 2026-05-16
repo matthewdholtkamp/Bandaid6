@@ -194,10 +194,16 @@
 
 <div class="composer-wrap">
   <div class="controls">
-    <select id="model">
+    <select id="model" title="Model">
+      <option value="gemini-3.1-flash-lite" selected>gemini-3.1-flash-lite</option>
       <option value="gemini-2.5-flash-lite">gemini-2.5-flash-lite</option>
       <option value="gemini-2.5-flash">gemini-2.5-flash</option>
       <option value="gemini-2.5-pro">gemini-2.5-pro</option>
+    </select>
+    <select id="thinking" title="Thinking depth">
+      <option value="0">Thinking: Off</option>
+      <option value="-1" selected>Thinking: Dynamic</option>
+      <option value="8192">Thinking: High</option>
     </select>
     <button id="reset">Reset conversation</button>
   </div>
@@ -262,6 +268,7 @@ const chat = document.getElementById("chat");
 const input = document.getElementById("input");
 const sendBtn = document.getElementById("send");
 const modelSel = document.getElementById("model");
+const thinkSel = document.getElementById("thinking");
 const resetBtn = document.getElementById("reset");
 const greet = document.getElementById("greet");
 
@@ -349,7 +356,9 @@ async function send() {
 
   const cfg = window.BANDAID_CONFIG || {};
   const workerUrl = cfg.WORKER_URL;
-  const model = modelSel.value || cfg.MODEL || "gemini-2.5-flash-lite";
+  const model = modelSel.value || cfg.MODEL || "gemini-3.1-flash-lite";
+  const temperature = typeof cfg.TEMPERATURE === "number" ? cfg.TEMPERATURE : 0.4;
+  const thinkingBudget = parseInt(thinkSel.value, 10);
 
   if (!workerUrl || workerUrl.includes("CHANGE-ME")) {
     typing.remove();
@@ -364,6 +373,12 @@ async function send() {
   }));
 
   try {
+    const generationConfig = { temperature };
+    // Only attach thinkingConfig if not "off" — some models reject thinkingBudget: 0
+    if (!Number.isNaN(thinkingBudget)) {
+      generationConfig.thinkingConfig = { thinkingBudget };
+    }
+
     const res = await fetch(workerUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -371,7 +386,7 @@ async function send() {
         model,
         systemInstruction: { role: "system", parts: [{ text: SYSTEM_PROMPT }] },
         contents,
-        generationConfig: { temperature: 0 }
+        generationConfig
       })
     });
     const data = await res.json();

@@ -3,5 +3,8 @@
 // Example: https://bandaid6.your-subdomain.workers.dev
 window.BANDAID_CONFIG = {
   WORKER_URL: "https://CHANGE-ME.workers.dev",
-  MODEL: "gemini-2.5-flash-lite"
+  MODEL: "gemini-3.1-flash-lite",
+  TEMPERATURE: 0.4,
+  // Thinking budget: 0 = off, -1 = dynamic (model decides), or explicit token cap (e.g. 8192 for "high thinking")
+  THINKING_BUDGET: -1
 };
