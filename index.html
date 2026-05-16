@@ -324,6 +324,27 @@ resetBtn.addEventListener("click", () => {
   }
 });
 
+const CLINICAL_REFUSAL = "I can't answer clinical or medical questions here. For medical emergencies, call 911. For non-emergency medical issues at General Leonard Wood Army Community Hospital, please contact the GLWACH duty phone.";
+
+// Bulletproof client-side guardrail. If ANY of these patterns hit, we never call Gemini.
+const CLINICAL_PATTERNS = [
+  // Symptoms / sensations
+  /\b(pain|ache|aching|hurts?|hurting|sore|soreness|burning|itch|itchy|itching|swell(ing|ed)?|swollen|bruis(e|ing|ed)|bleed(ing)?|bloody?|numb(ness)?|tingl(e|ing)|dizz(y|iness)|vertigo|nause(a|ous|ated)|vomit(ing)?|throw(ing)? up|diarrhea|constipat|cramp|fatigue|tired|exhausted|weakness|short(ness)? of breath|sob|chest pain|palpitations|fever|chills|sweats?|rash|hives?|cough(ing)?|sneeze|congestion|stuffy|runny nose|sore throat|headache|migraine|earache|toothache|backache|stomach ?ache|abdominal|cramping|spasm|seizure|fainting|passed out|blackout)\b/i,
+  // Conditions / diseases
+  /\b(diabet(es|ic)|hypertension|high blood pressure|cancer|tumor|asthma|copd|pneumonia|bronchitis|flu|influenza|covid|coronavirus|strep|infection|infected|sepsis|stroke|heart attack|cardiac|arrhythmia|anxiety|depression|ptsd|adhd|autism|alzheimer|dementia|parkinson|arthritis|lupus|crohn|ibs|gerd|reflux|ulcer|kidney stone|gallstone|hepatitis|hiv|aids|std|sti|herpes|hpv|chlamydia|gonorrhea|syphilis|pregnan(t|cy)|miscarriage|menstrual|period|menopause|endometriosis|fibroid|cyst|hernia|appendicitis|concussion|tbi|fracture|broken bone|sprain|strain|tear|tendon|ligament|cartilage|arthritic|osteoporosis|anemia|leukemia|lymphoma|melanoma)\b/i,
+  // Medications / treatments
+  /\b(medication|medicine|drug|prescription|pill|tablet|capsule|dosage|dose|mg|milligram|tylenol|acetaminophen|advil|ibuprofen|aspirin|aleve|naproxen|benadryl|claritin|zyrtec|allegra|prozac|zoloft|lexapro|xanax|ativan|valium|ambien|adderall|ritalin|insulin|metformin|lisinopril|atorvastatin|statin|antibiotic|amoxicillin|penicillin|steroid|prednisone|vaccine|vaccinat|immuniz|shot|injection|iv|surgery|operation|biopsy|chemo|radiation|therapy|physical therapy|pt|ot|rehab)\b/i,
+  // Diagnostic / clinical actions
+  /\b(diagnos(e|is|ed)|symptom|side effect|treatment|cure|heal|remed|first aid|cpr|tourniquet|stitch(es)?|suture|x-?ray|mri|ct scan|ultrasound|blood test|lab(s| work| result)|urine test|biopsy|ekg|ecg|stress test|colonoscopy|endoscopy|mammogram|pap smear|screening|check ?up|physical exam)\b/i,
+  // Question patterns that signal medical inquiry
+  /\b(what is (a |an )?[a-z][a-z\- ]{0,40}(itis|osis|emia|oma|pathy|algia|opathy|syndrome|disease|disorder|condition|virus|bacteria|fungus|cancer))\b/i,
+  /\b(is it (normal|ok|safe|bad|serious) (to|if|when)|should i (take|see|go to|worry|be worried)|do i (have|need)|how (do i|to) (treat|cure|heal|stop|prevent|get rid of)|why (do|does) (my|i) .* (hurt|ache|burn|itch|swell|bleed))\b/i,
+];
+
+function isClinicalQuestion(text) {
+  return CLINICAL_PATTERNS.some(re => re.test(text));
+}
+
 async function send() {
   const text = input.value.trim();
   if (!text) return;
@@ -334,6 +355,16 @@ async function send() {
   save();
 
   sendBtn.disabled = true;
+
+  // CLIENT-SIDE GUARDRAIL — never even call Gemini for clinical questions
+  if (isClinicalQuestion(text)) {
+    appendMessage("model", CLINICAL_REFUSAL);
+    history.push({ role: "model", text: CLINICAL_REFUSAL });
+    save();
+    sendBtn.disabled = false;
+    return;
+  }
+
   const botBody = appendMessage("model", "");
   const typing = document.createElement("span");
   typing.className = "typing";
