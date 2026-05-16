@@ -33,7 +33,7 @@ jobs:
             "https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/workers/subdomain" \
             -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}")
           echo "GET response: $GET_RESP"
-          EXISTING=$(echo "$GET_RESP" | python3 -c "import sys, json; d=json.load(sys.stdin); print((d.get('result') or {}).get('name','') or '')")
+          EXISTING=$(echo "$GET_RESP" | python3 -c "import sys, json; d=json.load(sys.stdin); r=d.get('result') or {}; print(r.get('subdomain') or r.get('name') or '')")
           if [ -n "$EXISTING" ]; then
             echo "Subdomain already registered: $EXISTING"
             exit 0
