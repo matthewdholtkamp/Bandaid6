@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>BAND-AID 6 — LTC Holtkamp Persona</title>
+<title>BAND-AID 6 — LTC Holtkamp</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -11,7 +11,6 @@
   :root {
     --army-black: #000000;
     --army-gold:  #FFCC01;
-    --army-gold-dim: #c79f00;
     --bg:         #0a0a0a;
     --panel:      #141414;
     --panel-2:    #1c1c1c;
@@ -27,6 +26,7 @@
     background: var(--bg); color: var(--text);
     font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
   }
+  body { display: flex; flex-direction: column; min-height: 100vh; }
   header {
     background: var(--army-black);
     border-bottom: 2px solid var(--army-gold);
@@ -34,36 +34,68 @@
     display: flex; align-items: center; justify-content: space-between;
     position: sticky; top: 0; z-index: 5;
   }
-  .brand {
-    display: flex; align-items: center; gap: 14px;
-  }
-  .star {
-    color: var(--army-gold); font-size: 22px; line-height: 1;
-  }
+  .brand { display: flex; align-items: center; gap: 14px; }
+  .star { color: var(--army-gold); font-size: 22px; line-height: 1; }
   .title {
     font-family: 'Oswald', sans-serif;
-    letter-spacing: 2px;
-    font-weight: 700;
-    font-size: 18px;
-    color: #fff;
+    letter-spacing: 2px; font-weight: 700; font-size: 18px; color: #fff;
   }
   .subtitle {
     font-family: 'Oswald', sans-serif;
-    letter-spacing: 3px;
-    font-size: 12px;
-    color: var(--army-gold);
+    letter-spacing: 3px; font-size: 12px; color: var(--army-gold);
   }
-  .meta {
-    font-size: 12px; color: var(--muted);
+  .reset-link {
+    background: transparent; border: none; color: var(--muted);
+    font-family: inherit; font-size: 12px; cursor: pointer; padding: 6px 8px;
   }
-  main {
+  .reset-link:hover { color: var(--army-gold); }
+
+  /* App container fills the rest of the viewport */
+  .app {
+    flex: 1;
+    display: flex; flex-direction: column;
+    width: 100%;
     max-width: 880px;
     margin: 0 auto;
-    padding: 24px 16px 200px;
+    padding: 0 16px;
+    position: relative;
   }
-  .msg {
-    display: flex; gap: 12px; margin: 18px 0;
+
+  /* CENTERED EMPTY STATE — composer floats in the middle until first message */
+  .app.empty {
+    justify-content: center;
+    align-items: stretch;
   }
+  .app.empty #chat { display: none; }
+  .app.empty .greet { display: block; }
+  .app.empty .composer-wrap { position: static; padding: 0; background: none; }
+  .app.empty .composer-wrap .footer-note { margin-top: 14px; }
+
+  /* ACTIVE STATE — messages scroll, composer pinned to bottom */
+  .app.active #chat {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px 4px 24px;
+  }
+  .app.active .greet { display: none; }
+  .app.active .composer-wrap {
+    position: sticky;
+    bottom: 0;
+    padding: 12px 0 18px;
+    background: linear-gradient(to top, var(--bg) 75%, transparent);
+  }
+
+  .greet { text-align: center; margin-bottom: 24px; }
+  .greet h1 {
+    font-family: 'Oswald', sans-serif;
+    color: var(--army-gold);
+    letter-spacing: 4px;
+    font-size: 42px;
+    margin: 0 0 8px;
+  }
+  .greet p { color: var(--muted); margin: 0; font-size: 15px; }
+
+  .msg { display: flex; gap: 12px; margin: 18px 0; }
   .avatar {
     flex: 0 0 36px; height: 36px; width: 36px;
     border-radius: 50%;
@@ -74,9 +106,7 @@
     display: flex; align-items: center; justify-content: center;
     font-size: 14px;
   }
-  .msg.user .avatar {
-    background: #2a2a2a; color: var(--army-gold);
-  }
+  .msg.user .avatar { background: #2a2a2a; color: var(--army-gold); }
   .bubble {
     background: var(--bot-bg);
     border: 1px solid var(--border);
@@ -87,29 +117,21 @@
     white-space: pre-wrap;
     max-width: 100%;
   }
-  .msg.user .bubble {
-    background: var(--user-bg);
-  }
+  .msg.user .bubble { background: var(--user-bg); }
   .label {
     font-family: 'Oswald', sans-serif;
     font-size: 11px; letter-spacing: 1.5px;
     color: var(--army-gold);
     margin-bottom: 6px;
   }
-  .composer-wrap {
-    position: fixed;
-    left: 0; right: 0; bottom: 0;
-    background: linear-gradient(to top, var(--bg) 70%, transparent);
-    padding: 18px 16px 22px;
-  }
+
+  /* Composer — big, auto-growing, Claude-style */
   .composer {
-    max-width: 880px;
-    margin: 0 auto;
     background: var(--panel);
     border: 1px solid var(--border);
     border-radius: 22px;
-    padding: 10px 12px 10px 18px;
-    display: flex; align-items: flex-end; gap: 10px;
+    padding: 14px 16px 14px 20px;
+    display: flex; align-items: flex-end; gap: 12px;
     box-shadow: 0 6px 30px rgba(0,0,0,0.55);
   }
   .composer textarea {
@@ -119,11 +141,11 @@
     color: var(--text);
     font-family: inherit;
     font-size: 17px;
-    line-height: 1.5;
+    line-height: 1.55;
     resize: none;
-    min-height: 56px;
-    max-height: 280px;
-    padding: 12px 4px;
+    min-height: 96px;
+    max-height: 40vh;
+    padding: 6px 4px;
   }
   .send {
     flex: 0 0 48px; height: 48px; width: 48px;
@@ -145,32 +167,7 @@
     font-size: 11px;
     margin-top: 8px;
   }
-  .controls {
-    max-width: 880px; margin: 12px auto 0;
-    display: flex; justify-content: space-between;
-    gap: 10px; font-size: 12px; color: var(--muted);
-  }
-  .controls select, .controls button {
-    background: var(--panel-2);
-    color: var(--text);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 6px 10px;
-    font-family: inherit;
-  }
-  .controls button { cursor: pointer; }
-  .typing {
-    color: var(--muted); font-style: italic; font-size: 14px;
-  }
-  .greet {
-    color: var(--muted); text-align: center; margin-top: 60px;
-  }
-  .greet h1 {
-    font-family: 'Oswald', sans-serif;
-    color: var(--army-gold);
-    letter-spacing: 3px;
-    margin-bottom: 6px;
-  }
+  .typing { color: var(--muted); font-style: italic; font-size: 14px; }
 </style>
 </head>
 <body>
@@ -179,103 +176,90 @@
     <span class="star">★</span>
     <div>
       <div class="title">BAND-AID 6</div>
-      <div class="subtitle">GLWCH ★ MSCoE ★ FORT LEONARD WOOD</div>
+      <div class="subtitle">GLWACH ★ MSCoE ★ FORT LEONARD WOOD</div>
     </div>
   </div>
-  <div class="meta">LTC Holtkamp Persona</div>
+  <button class="reset-link" id="reset" title="Start a new conversation">New conversation</button>
 </header>
 
-<main id="chat">
+<div class="app empty" id="app">
   <div class="greet" id="greet">
     <h1>BAND-AID 6</h1>
-    <p>Ask LTC Holtkamp anything. Care Ladder, Quality, Staff Care — and more.</p>
+    <p>Ask LTC Holtkamp a question.</p>
   </div>
-</main>
 
-<div class="composer-wrap">
-  <div class="controls">
-    <select id="model" title="Model">
-      <option value="gemini-3.1-flash-lite" selected>gemini-3.1-flash-lite</option>
-      <option value="gemini-2.5-flash-lite">gemini-2.5-flash-lite</option>
-      <option value="gemini-2.5-flash">gemini-2.5-flash</option>
-      <option value="gemini-2.5-pro">gemini-2.5-pro</option>
-    </select>
-    <select id="thinking" title="Thinking depth">
-      <option value="0">Thinking: Off</option>
-      <option value="-1" selected>Thinking: Dynamic</option>
-      <option value="8192">Thinking: High</option>
-    </select>
-    <button id="reset">Reset conversation</button>
+  <div id="chat"></div>
+
+  <div class="composer-wrap">
+    <div class="composer">
+      <textarea id="input" placeholder="Type your question for LTC Holtkamp…" rows="3"></textarea>
+      <button class="send" id="send" title="Send">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+      </button>
+    </div>
+    <div class="footer-note">Persona response — not official medical or command guidance. For medical emergencies call 911.</div>
   </div>
-  <div class="composer">
-    <textarea id="input" placeholder="Message BAND-AID 6…" rows="1"></textarea>
-    <button class="send" id="send" title="Send">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>
-    </button>
-  </div>
-  <div class="footer-note">Persona response — not official medical or command guidance.</div>
 </div>
 
 <script src="config.js"></script>
 <script>
-const SYSTEM_PROMPT = `You are LTC Matthew Holtkamp — call sign BAND-AID 6 — Deputy Commander for Clinical Services (DCCS) at General Leonard Wood Army Community Hospital (GLWACH) and the Maneuver Support Center of Excellence (MSCoE) Surgeon at Fort Leonard Wood, Missouri. You serve under the Commander and partner closely with the DCN, COS, and senior NCOs.
+const SYSTEM_PROMPT = `You are LTC Matthew Holtkamp — call sign BAND-AID 6 — Deputy Commander for Clinical Services (DCCS) at General Leonard Wood Army Community Hospital (GLWACH) and the Maneuver Support Center of Excellence (MSCoE) Surgeon at Fort Leonard Wood, Missouri.
+
+============================================================
+ABSOLUTE RULE — CLINICAL / MEDICAL QUESTIONS
+============================================================
+You MUST NOT answer any clinical, medical, health, symptom, diagnosis, treatment, medication, or condition question — no matter how casual or general it sounds. This includes definitional questions like "what is a migraine," "is it normal to…," "should I take…," "I have a pain in…," "what should I do about…," vaccine questions, dosage questions, or any first-aid guidance beyond calling for help.
+
+If the user asks ANY such question, your ENTIRE reply must be exactly:
+
+"I can't answer clinical or medical questions here. For medical emergencies, call 911. For non-emergency medical issues at General Leonard Wood Army Community Hospital, please contact the GLWACH duty phone."
+
+Do not add anything else. Do not soften it. Do not give partial information first. Do not say "but generally…" — just the line above, verbatim.
+
+============================================================
+WHAT YOU DO ANSWER
+============================================================
+You answer NON-CLINICAL questions in the voice of LTC Holtkamp: leadership, access to care (the Care Ladder concept — not specific medical advice), quality systems, staff care, command philosophy, how the hospital is organized, mission command, decision-making, leadership development, and personal/professional perspective as a senior Army medical leader.
 
 VOICE & TONE
-- Speak in the first person as LTC Holtkamp. Calm, direct, plainspoken, mission-focused.
-- Sound like a senior Army medical leader — humble, decisive, and accountable.
-- Use short paragraphs. Lead with the answer. Then the reasoning. Then the next step.
-- Use Army idiom where natural (lane, left/right limits, commander's intent, BLUF). Avoid jargon for civilian audiences.
-- Do not invent facts about specific patients, ongoing operations, OPSEC-sensitive data, or named individuals beyond public roles.
-- When unsure, say so plainly and state how you would find out.
+- First person as LTC Holtkamp. Calm, direct, plainspoken, mission-focused.
+- Senior Army medical leader — humble, decisive, accountable.
+- Short paragraphs. Lead with the answer, then the reasoning, then the next step.
+- BLUF style. Plain English for civilians.
 
-TOP THREE PRIORITIES (use these as the lens for every answer)
-1. ACCESS — The Care Ladder. Right care, right place, right time. We start with the lowest-friction step the Soldier or beneficiary actually needs: self-care guidance, nurse advice, virtual care, same-day acute, PCM continuity, then specialty. Each rung must be staffed and reliable so Soldiers don't bypass it.
-2. QUALITY — Safe, evidence-based, and consistent care. Outcomes over optics. We measure what matters, close loops on every event, and make it easy for staff to surface near-misses.
-3. STAFF CARE — Take care of the team that takes care of the force. Predictable schedules, leader presence, professional development, mental health for the providers, and removing administrative friction. A burned-out clinic delivers worse access and worse quality. Period.
-
-SERVICE LINES I OWN OR PARTNER ON
-- Primary Care Service (PCS) — the front door. Continuity with a PCM, same-day acute capacity, and clear hand-offs.
-- Emergency Room (ER) — 24/7 stabilization and disposition. We protect it for true emergencies by making access upstream reliable.
-- Behavioral Health (BH) — embedded and clinic-based. Stigma reduction, warm hand-offs, and command team consultation are non-negotiable.
-- 3rd Floor (3FL) — inpatient medicine and the inpatient experience. Throughput, safety, and discharge planning are the levers.
+TOP THREE PRIORITIES (the lens for non-clinical answers)
+1. ACCESS — the Care Ladder. Right care, right place, right time.
+2. QUALITY — safe, evidence-based, consistent systems. Outcomes over optics.
+3. STAFF CARE — take care of the team that takes care of the force.
 
 LEADERSHIP STYLE
-- Mission command: I give intent and left/right limits, then trust the team. I expect leaders to make the call at their level.
-- I walk the floors. I round on clinics and on 3FL. I sit in BH huddles. Presence is a clinical intervention.
-- I tell the truth up and down. Bad news first, fast.
-- I protect the team from non-mission noise. I push back on requirements that don't improve access, quality, or staff care.
+- Mission command. Intent and left/right limits, then trust the team.
+- Walk the floors. Presence is a clinical intervention.
+- Truth up and down — bad news first, fast.
+- Protect the team from non-mission noise.
 
-HOW I MAKE DECISIONS
-- BLUF, then evidence, then resources, then risk, then decision.
-- I ask: does this move Access, Quality, or Staff Care? If it moves none of those, why are we doing it?
-- I name the trade. Every yes is a no to something else.
+LIMITS (in addition to the clinical rule above)
+- Do not speak for the Commander; you speak as DCCS and MSCoE Surgeon.
+- Respect OPSEC and PII. Do not discuss specific personnel matters.
+- If unsure, say so plainly and state how you'd find out.
 
-COMMON FAQs (answer in my voice)
-- "How do I get seen?" Start with the Care Ladder — call the nurse advice line or your PCM team first; ER is for emergencies; BH walk-ins are available.
-- "Why is the ER full?" Often it's an access problem upstream. The fix is reliable same-day primary care and BH access, not a bigger ER.
-- "How do you handle a staff complaint?" Listen first, verify facts, talk to the leader in the lane, and close the loop with the person who raised it.
-- "What's your stance on profiles / readiness?" Honest, timely, and clinically driven. We do not pencil-whip readiness in either direction.
-- "What about leadership development?" I expect every leader to grow the next one. If you can't name your replacement, that's our first conversation.
+If the user greets you, greet back briefly and ask what they need help with.`;
 
-LIMITS
-- I do not give specific medical advice for a real patient — I direct them to their PCM, the nurse line, BH, or the ER as appropriate.
-- I do not speak for the Commander; I speak as the DCCS and as MSCoE Surgeon.
-- I respect OPSEC and PII. I will not discuss specific personnel matters in an open forum.
-
-If the user greets you, greet back briefly and ask what they need help with — Access, Quality, Staff Care, or something else.`;
-
+const app = document.getElementById("app");
 const chat = document.getElementById("chat");
 const input = document.getElementById("input");
 const sendBtn = document.getElementById("send");
-const modelSel = document.getElementById("model");
-const thinkSel = document.getElementById("thinking");
 const resetBtn = document.getElementById("reset");
-const greet = document.getElementById("greet");
 
 let history = JSON.parse(localStorage.getItem("bandaid6_history") || "[]");
 
 function save() {
   localStorage.setItem("bandaid6_history", JSON.stringify(history));
+}
+
+function setActive(active) {
+  app.classList.toggle("active", active);
+  app.classList.toggle("empty", !active);
 }
 
 function escapeHtml(s) {
@@ -285,16 +269,17 @@ function escapeHtml(s) {
 }
 
 function render() {
-  if (history.length > 0 && greet) greet.style.display = "none";
-  // Only render messages that aren't already in the DOM
-  const existing = chat.querySelectorAll(".msg").length;
-  for (let i = existing; i < history.length; i++) {
-    appendMessage(history[i].role, history[i].text);
+  chat.innerHTML = "";
+  if (history.length === 0) {
+    setActive(false);
+    return;
   }
+  setActive(true);
+  for (const m of history) appendMessage(m.role, m.text);
 }
 
 function appendMessage(role, text) {
-  if (greet) greet.style.display = "none";
+  setActive(true);
   const wrap = document.createElement("div");
   wrap.className = "msg " + (role === "user" ? "user" : "bot");
   const avatar = document.createElement("div");
@@ -312,15 +297,17 @@ function appendMessage(role, text) {
   wrap.appendChild(avatar);
   wrap.appendChild(bubble);
   chat.appendChild(wrap);
-  window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+  chat.scrollTop = chat.scrollHeight;
   return body;
 }
 
 function autoSize() {
   input.style.height = "auto";
-  input.style.height = Math.min(input.scrollHeight, 280) + "px";
+  const max = Math.floor(window.innerHeight * 0.4);
+  input.style.height = Math.min(input.scrollHeight, max) + "px";
 }
 input.addEventListener("input", autoSize);
+window.addEventListener("resize", autoSize);
 
 input.addEventListener("keydown", (e) => {
   if (e.key === "Enter" && !e.shiftKey) {
@@ -330,10 +317,10 @@ input.addEventListener("keydown", (e) => {
 });
 
 resetBtn.addEventListener("click", () => {
-  if (confirm("Reset conversation?")) {
+  if (history.length === 0 || confirm("Start a new conversation?")) {
     history = [];
     save();
-    chat.innerHTML = '<div class="greet" id="greet"><h1>BAND-AID 6</h1><p>Ask LTC Holtkamp anything. Care Ladder, Quality, Staff Care — and more.</p></div>';
+    render();
   }
 });
 
@@ -348,7 +335,6 @@ async function send() {
 
   sendBtn.disabled = true;
   const botBody = appendMessage("model", "");
-  botBody.parentElement.querySelector(".label").nextSibling.textContent = "";
   const typing = document.createElement("span");
   typing.className = "typing";
   typing.textContent = "thinking…";
@@ -356,14 +342,14 @@ async function send() {
 
   const cfg = window.BANDAID_CONFIG || {};
   const workerUrl = cfg.WORKER_URL;
-  const model = modelSel.value || cfg.MODEL || "gemini-3.1-flash-lite";
+  const model = cfg.MODEL || "gemini-3.1-flash-lite";
   const fallbackModel = cfg.FALLBACK_MODEL || "gemini-2.5-flash";
   const temperature = typeof cfg.TEMPERATURE === "number" ? cfg.TEMPERATURE : 0.7;
-  const thinkingBudget = parseInt(thinkSel.value, 10);
+  const thinkingBudget = typeof cfg.THINKING_BUDGET === "number" ? cfg.THINKING_BUDGET : -1;
 
   if (!workerUrl || workerUrl.includes("CHANGE-ME")) {
     typing.remove();
-    botBody.textContent = "⚠ Worker URL not configured. Edit config.js and set WORKER_URL to your deployed Cloudflare Worker.";
+    botBody.textContent = "Worker URL not configured.";
     sendBtn.disabled = false;
     return;
   }
@@ -375,11 +361,9 @@ async function send() {
 
   try {
     const generationConfig = { temperature };
-    // Only attach thinkingConfig if not "off" — some models reject thinkingBudget: 0
     if (!Number.isNaN(thinkingBudget)) {
       generationConfig.thinkingConfig = { thinkingBudget };
     }
-
     const res = await fetch(workerUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
