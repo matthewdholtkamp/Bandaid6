@@ -34,7 +34,7 @@ jobs:
             -H "Content-Type: application/json" \
             --data '{"subdomain":"mholtkamp"}' | tee subdomain_resp.json
           echo
-          grep -q '"success":true' subdomain_resp.json || (echo "Subdomain registration failed (may already be taken - try another name)"; exit 1)
+          grep -Eq '"success"[[:space:]]*:[[:space:]]*true' subdomain_resp.json || (echo "Subdomain registration failed (may already be taken - try another name)"; exit 1)
 
       - name: Deploy Worker
         env:
