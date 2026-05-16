@@ -4,7 +4,8 @@
 window.BANDAID_CONFIG = {
   WORKER_URL: "https://CHANGE-ME.workers.dev",
   MODEL: "gemini-3.1-flash-lite",
-  TEMPERATURE: 0.4,
+  FALLBACK_MODEL: "gemini-2.5-flash",
+  TEMPERATURE: 0.7,
   // Thinking budget: 0 = off, -1 = dynamic (model decides), or explicit token cap (e.g. 8192 for "high thinking")
   THINKING_BUDGET: -1
 };

@@ -40,26 +40,46 @@ export default {
       });
     }
 
-    const model = body.model || "gemini-3.1-flash-lite";
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${env.GEMINI_API_KEY}`;
+    const primaryModel = body.model || "gemini-3.1-flash-lite";
+    const fallbackModel = body.fallbackModel || "gemini-2.5-flash";
 
     // Pass through whatever generationConfig the client sent (temperature, thinkingConfig, etc.)
-    const generationConfig = body.generationConfig || { temperature: 0.4 };
+    const generationConfig = body.generationConfig || { temperature: 0.7 };
 
-    const upstream = await fetch(url, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        systemInstruction: body.systemInstruction,
-        contents: body.contents,
-        generationConfig
-      })
-    });
+    const callModel = (model) => fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${env.GEMINI_API_KEY}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          systemInstruction: body.systemInstruction,
+          contents: body.contents,
+          generationConfig
+        })
+      }
+    );
+
+    let upstream = await callModel(primaryModel);
+    let usedModel = primaryModel;
+
+    // On quota / rate limit / server errors, fall back to the secondary model.
+    if (
+      fallbackModel &&
+      fallbackModel !== primaryModel &&
+      (upstream.status === 429 || upstream.status === 503 || upstream.status === 500)
+    ) {
+      upstream = await callModel(fallbackModel);
+      usedModel = fallbackModel;
+    }
 
     const data = await upstream.text();
     return new Response(data, {
       status: upstream.status,
-      headers: { ...corsHeaders, "Content-Type": "application/json" }
+      headers: {
+        ...corsHeaders,
+        "Content-Type": "application/json",
+        "X-Model-Used": usedModel
+      }
     });
   }
 };

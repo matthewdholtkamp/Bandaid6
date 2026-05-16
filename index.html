@@ -357,7 +357,8 @@ async function send() {
   const cfg = window.BANDAID_CONFIG || {};
   const workerUrl = cfg.WORKER_URL;
   const model = modelSel.value || cfg.MODEL || "gemini-3.1-flash-lite";
-  const temperature = typeof cfg.TEMPERATURE === "number" ? cfg.TEMPERATURE : 0.4;
+  const fallbackModel = cfg.FALLBACK_MODEL || "gemini-2.5-flash";
+  const temperature = typeof cfg.TEMPERATURE === "number" ? cfg.TEMPERATURE : 0.7;
   const thinkingBudget = parseInt(thinkSel.value, 10);
 
   if (!workerUrl || workerUrl.includes("CHANGE-ME")) {
@@ -384,6 +385,7 @@ async function send() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         model,
+        fallbackModel,
         systemInstruction: { role: "system", parts: [{ text: SYSTEM_PROMPT }] },
         contents,
         generationConfig
