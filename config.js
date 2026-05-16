@@ -2,7 +2,7 @@
 // Set this to your deployed Cloudflare Worker URL after you deploy worker.js
 // Example: https://bandaid6.your-subdomain.workers.dev
 window.BANDAID_CONFIG = {
-  WORKER_URL: "https://CHANGE-ME.workers.dev",
+  WORKER_URL: "https://bandaid6.mholtkamp.workers.dev",
   MODEL: "gemini-3.1-flash-lite",
   FALLBACK_MODEL: "gemini-2.5-flash",
   TEMPERATURE: 0.7,
