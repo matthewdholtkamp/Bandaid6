@@ -957,10 +957,10 @@ async function send() {
         if (done) break;
         buffer += decoder.decode(value, { stream: true });
         // SSE events are separated by blank lines. Each event has one or more "data: ..." lines.
-        const parts = buffer.split("\n\n");
+        const parts = buffer.split(/\r?\n\r?\n/);
         buffer = parts.pop() || "";
         for (const evt of parts) {
-          const lines = evt.split("\n");
+          const lines = evt.split(/\r?\n/);
           for (const line of lines) {
             if (!line.startsWith("data:")) continue;
             const payload = line.slice(5).trim();
