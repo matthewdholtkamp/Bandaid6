@@ -34,32 +34,5 @@
     "chunk_count": 8,
     "char_count": 6545,
     "file": "references/extracted/mod-ood-sod-inpatient-moa-2026.json"
-  },
-  {
-    "id": "adp-6-22-army-leadership",
-    "title": "ADP 6-22 Army Leadership",
-    "category": "Army Leadership Doctrine",
-    "type": "pdf",
-    "chunk_count": 234,
-    "char_count": 415247,
-    "file": "references/extracted/adp-6-22-army-leadership.json"
-  },
-  {
-    "id": "ar-600-100-leadership-and-profession",
-    "title": "AR 600-100 Army Leadership and the Profession",
-    "category": "Army Leadership Doctrine",
-    "type": "pdf",
-    "chunk_count": 41,
-    "char_count": 125985,
-    "file": "references/extracted/ar-600-100-leadership-and-profession.json"
-  },
-  {
-    "id": "fm-6-22-leader-development",
-    "title": "FM 6-22 Leader Development",
-    "category": "Army Leadership Doctrine",
-    "type": "pdf",
-    "chunk_count": 191,
-    "char_count": 587284,
-    "file": "references/extracted/fm-6-22-leader-development.json"
   }
 ]
