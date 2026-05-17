@@ -638,6 +638,11 @@ function renderBubble(el, text) {
   // Second pass: any remaining **inline** -> gold only, not bold.
   html = html.replace(/\*\*([^*\n][^*]*?)\*\*/g, '<span class="md-inline-gold">$1</span>');
 
+  // Third pass: single-asterisk *emphasis* -> gold, not bold.
+  // Requires non-whitespace immediately inside both * markers so we don't eat list bullets ("* item")
+  // or orphan asterisks. Also avoids matching across word boundaries on the outside.
+  html = html.replace(/(^|[^*\w])\*(?!\s)([^*\n]+?)(?<!\s)\*(?!\w)/g, '$1<span class="md-inline-gold">$2</span>');
+
   const leadershipBtn = '<a class="leadership-link-btn" href="https://matthewdholtkamp.github.io/Leadership/" target="_blank" rel="noopener">Leadership Philosophy &rarr;</a>';
   // Match the URL with or without trailing slash, and tolerate a preceding "see " phrase.
   html = html.replace(/(?:\s*,?\s*see\s+)?https?:\/\/matthewdholtkamp\.github\.io\/Leadership\/?/gi, ' ' + leadershipBtn);
