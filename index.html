@@ -172,6 +172,12 @@
   }
   .leadership-link-btn:hover { background: #ffd633; }
   .leadership-link-btn:active { transform: scale(0.97); }
+
+  /* Markdown **bold** rendering for assistant replies.
+     - Section-leading **bold** (start of paragraph / list item) -> gold + bold
+     - Inline **bold** (mid-paragraph)                            -> gold only, not bold */
+  .md-bold-gold { color: var(--army-gold); font-weight: 700; }
+  .md-inline-gold { color: var(--army-gold); font-weight: inherit; }
   @media (max-width: 900px) {
     .starter-chips { justify-content: flex-start; }
     .chip { font-size: 13px; padding: 9px 14px; }
@@ -615,8 +621,23 @@ function escapeHtml(s) {
 }
 
 // Render bubble text with escaping, then swap the Leadership URL for a clickable button.
+// Markdown **bold** handling:
+//   - `**text**` at the start of a line / paragraph / after a blank line  -> army gold + bold (section header)
+//   - `**text**` anywhere else (inline)                                   -> army gold, NOT bold
 function renderBubble(el, text) {
   let html = escapeHtml(text);
+
+  // First pass: section-leading **bold** -> bold + gold.
+  // A "section lead" is **...** at start of string, or right after a newline (with optional whitespace,
+  // list bullet, or numbered-list prefix like "1. ").
+  html = html.replace(
+    /(^|\n)([ \t]*(?:[-*+•]\s+|\d+\.\s+)?)\*\*([^*\n][^*]*?)\*\*/g,
+    (_m, lead, prefix, inner) => lead + prefix + '<span class="md-bold-gold">' + inner + '</span>'
+  );
+
+  // Second pass: any remaining **inline** -> gold only, not bold.
+  html = html.replace(/\*\*([^*\n][^*]*?)\*\*/g, '<span class="md-inline-gold">$1</span>');
+
   const leadershipBtn = '<a class="leadership-link-btn" href="https://matthewdholtkamp.github.io/Leadership/" target="_blank" rel="noopener">Leadership Philosophy &rarr;</a>';
   // Match the URL with or without trailing slash, and tolerate a preceding "see " phrase.
   html = html.replace(/(?:\s*,?\s*see\s+)?https?:\/\/matthewdholtkamp\.github\.io\/Leadership\/?/gi, ' ' + leadershipBtn);
