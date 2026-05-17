@@ -1,0 +1,42 @@
+[
+  {
+    "id": "army-medicine-strategic-plan-2026",
+    "title": "2026 Army Medicine Strategic Plan",
+    "type": "pdf",
+    "category": "Army Strategy",
+    "path": "references/source/2026-army-medicine-strategic-plan.pdf",
+    "description": "Strategic framework for Army Medicine priorities, Lines of Effort, and end state."
+  },
+  {
+    "id": "army-otsg-logo",
+    "title": "Army OTSG Image",
+    "type": "image",
+    "category": "Media",
+    "path": "references/source/army-otsg.png",
+    "description": "Army Office of The Surgeon General image asset for reference or future visual use."
+  },
+  {
+    "id": "dccs-operational-framework-2027",
+    "title": "DCCS Operational Framework 2027",
+    "type": "presentation",
+    "category": "DCCS Framework",
+    "path": "references/source/dccs-operational-framework-2027.pptx",
+    "description": "DCCS operational framework presentation for future slide snapshots and source references."
+  },
+  {
+    "id": "evaluations-guidance-philosophy-dccs",
+    "title": "Evaluations Guidance and Philosophy - DCCS",
+    "type": "pdf",
+    "category": "Leadership",
+    "path": "references/source/evaluations-guidance-philosophy-dccs.pdf",
+    "description": "Evaluation philosophy, rating ground rules, rating sources, and HQ/MQ performance characteristics."
+  },
+  {
+    "id": "mod-ood-sod-inpatient-moa-2026",
+    "title": "MOD/OOD/SOD Inpatient MOA 2026",
+    "type": "pdf",
+    "category": "Operations",
+    "path": "references/source/mod-ood-sod-inpatient-moa-2026.pdf",
+    "description": "Memorandum of agreement for MOD/OOD/SOD inpatient operational coverage."
+  }
+]
