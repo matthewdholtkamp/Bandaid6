@@ -25,6 +25,8 @@
     margin: 0; padding: 0; height: 100%;
     background: var(--bg); color: var(--text);
     font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+    overflow-x: hidden;
+    width: 100vw;
   }
   body { display: flex; flex-direction: column; min-height: 100vh; }
   header {
@@ -33,6 +35,8 @@
     padding: 14px 20px;
     display: flex; align-items: center; justify-content: space-between;
     position: sticky; top: 0; z-index: 5;
+    min-width: 0;
+    width: 100%;
   }
   .brand { display: flex; align-items: center; gap: 14px; }
   .star { color: var(--army-gold); font-size: 22px; line-height: 1; }
@@ -49,16 +53,35 @@
     font-family: inherit; font-size: 12px; cursor: pointer; padding: 6px 8px;
   }
   .reset-link:hover { color: var(--army-gold); }
+  .header-actions { display: flex; align-items: center; gap: 8px; }
+  .reference-toggle {
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    color: var(--text);
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 7px 12px;
+  }
+  .reference-toggle:hover,
+  .reference-toggle.active {
+    border-color: var(--army-gold);
+    color: var(--army-gold);
+  }
 
   /* App container fills the rest of the viewport */
   .app {
     flex: 1;
     display: flex; flex-direction: column;
     width: 100%;
-    max-width: 880px;
+    max-width: min(880px, 100vw);
     margin: 0 auto;
     padding: 0 16px;
     position: relative;
+    min-width: 0;
+    overflow-x: hidden;
   }
 
   /* CENTERED EMPTY STATE — composer floats in the middle until first message */
@@ -66,10 +89,21 @@
     justify-content: center;
     align-items: stretch;
   }
+  .app.empty.show-references {
+    justify-content: flex-start;
+    overflow-y: auto;
+    padding-top: 18px;
+    padding-bottom: 18px;
+  }
   .app.empty #chat { display: none; }
   .app.empty .greet { display: block; }
+  .app.empty.show-references .greet {
+    display: block;
+    margin-bottom: 14px;
+  }
   .app.empty .composer-wrap { position: static; padding: 0; background: none; }
   .app.empty .composer-wrap .footer-note { margin-top: 14px; }
+  .app.empty.show-references .composer textarea { min-height: 72px; }
 
   /* ACTIVE STATE — messages scroll, composer pinned to bottom */
   .app.active #chat {
@@ -94,6 +128,87 @@
     margin: 0 0 8px;
   }
   .greet p { color: var(--muted); margin: 0; font-size: 15px; }
+
+  .references-panel {
+    display: none;
+    border-top: 1px solid var(--border);
+    margin: 4px 0 10px;
+    max-height: min(320px, 42vh);
+    overflow-y: auto;
+    padding: 14px 4px 6px;
+  }
+  .app.show-references .references-panel { display: block; }
+  .references-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 8px;
+  }
+  .references-header h2 {
+    color: var(--army-gold);
+    font-family: 'Oswald', sans-serif;
+    letter-spacing: 1.6px;
+    margin: 0;
+    font-size: 15px;
+    text-transform: uppercase;
+  }
+  .references-count {
+    color: var(--muted);
+    font-size: 11px;
+  }
+  .references-list {
+    counter-reset: references;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .reference-row {
+    align-items: baseline;
+    border-radius: 8px;
+    color: var(--text);
+    counter-increment: references;
+    display: grid;
+    gap: 6px;
+    grid-template-columns: 24px minmax(0, 1fr) auto;
+    padding: 6px 8px;
+    text-decoration: none;
+  }
+  .reference-row::before {
+    color: var(--muted);
+    content: counter(references) ".";
+    font-size: 12px;
+  }
+  .reference-row:hover {
+    background: var(--panel);
+  }
+  .reference-row.cited {
+    background: rgba(196, 164, 92, 0.12);
+    box-shadow: inset 3px 0 0 var(--army-gold);
+  }
+  .reference-row.cited .reference-title {
+    color: var(--army-gold);
+  }
+  .reference-title {
+    color: var(--text);
+    font-size: 13px;
+    line-height: 1.35;
+    min-width: 0;
+  }
+  .reference-row:hover .reference-title {
+    color: var(--army-gold);
+  }
+  .reference-meta {
+    color: var(--muted);
+    font-size: 11px;
+    white-space: nowrap;
+  }
+  .reference-empty {
+    color: var(--muted);
+    font-size: 13px;
+    margin: 0;
+    padding: 10px 0;
+  }
 
   .msg { display: flex; gap: 12px; margin: 18px 0; }
   .avatar {
@@ -133,6 +248,7 @@
     padding: 14px 16px 14px 20px;
     display: flex; align-items: flex-end; gap: 12px;
     box-shadow: 0 6px 30px rgba(0,0,0,0.55);
+    min-width: 0;
   }
   .composer textarea {
     flex: 1;
@@ -145,6 +261,7 @@
     resize: none;
     min-height: 96px;
     max-height: 40vh;
+    min-width: 0;
     padding: 6px 4px;
   }
   .send {
@@ -168,6 +285,45 @@
     margin-top: 8px;
   }
   .typing { color: var(--muted); font-style: italic; font-size: 14px; }
+
+  @media (max-width: 900px) {
+    header {
+      align-items: stretch;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .brand {
+      align-items: flex-start;
+      min-width: 0;
+    }
+    .brand > div { min-width: 0; }
+    .title,
+    .subtitle { letter-spacing: 0; }
+    .subtitle {
+      line-height: 1.3;
+      overflow-wrap: anywhere;
+    }
+    .header-actions {
+      flex-wrap: wrap;
+      justify-content: flex-start;
+    }
+    .greet {
+      text-align: left;
+    }
+    .greet h1 {
+      font-size: 34px;
+      letter-spacing: 0;
+      overflow-wrap: anywhere;
+    }
+    .reference-row {
+      align-items: start;
+      grid-template-columns: 22px minmax(0, 1fr);
+    }
+    .reference-meta {
+      grid-column: 2;
+      white-space: normal;
+    }
+  }
 </style>
 </head>
 <body>
@@ -179,7 +335,10 @@
       <div class="subtitle">GLWACH ★ MSCoE ★ FORT LEONARD WOOD</div>
     </div>
   </div>
-  <button class="reset-link" id="reset" title="Start a new conversation">New conversation</button>
+  <div class="header-actions">
+    <button class="reference-toggle" id="referencesToggle" type="button">References</button>
+    <button class="reset-link" id="reset" title="Start a new conversation">New conversation</button>
+  </div>
 </header>
 
 <div class="app empty" id="app">
@@ -198,6 +357,15 @@
       </button>
     </div>
     <div class="footer-note">Persona response — not official medical or command guidance. For medical emergencies call 911.</div>
+    <section class="references-panel" id="referencesPanel" aria-label="Reference library">
+      <div class="references-header">
+        <h2>References</h2>
+        <span class="references-count" id="referencesCount">Source files</span>
+      </div>
+      <div class="references-list" id="referencesGrid">
+        <div class="reference-empty">Loading references…</div>
+      </div>
+    </section>
   </div>
 </div>
 
@@ -292,15 +460,58 @@ LIMITS (in addition to the clinical rule above)
 - Respect OPSEC and PII. Do not discuss specific personnel matters.
 - If unsure, say so plainly and state how you'd find out.
 
-If the user greets you, greet back briefly and ask what they need help with.`;
+If the user greets you, greet back briefly and ask what they need help with.
+
+USING REFERENCE SNIPPETS
+- When a "REFERENCE SNIPPETS" block is provided in the latest user message, treat it as authoritative source material drawn from the BAND-AID 6 reference library.
+- Prefer those snippets over general knowledge whenever they are relevant to the question.
+- When you rely on a snippet, cite it inline in the form [Title, p.X] or [Title, Slide N] using the exact title and section shown.
+- If the snippets do not cover the question, answer plainly from your own knowledge and do not invent citations.
+- Never quote snippets verbatim in long blocks; summarize in your own words and cite.`;
 
 const app = document.getElementById("app");
 const chat = document.getElementById("chat");
 const input = document.getElementById("input");
 const sendBtn = document.getElementById("send");
 const resetBtn = document.getElementById("reset");
+const referencesToggle = document.getElementById("referencesToggle");
+const referencesGrid = document.getElementById("referencesGrid");
+const referencesCount = document.getElementById("referencesCount");
 
 let history = JSON.parse(localStorage.getItem("bandaid6_history") || "[]");
+
+const FALLBACK_REFERENCES = [
+  {
+    title: "2026 Army Medicine Strategic Plan",
+    type: "pdf",
+    category: "Army Strategy",
+    path: "references/source/2026-army-medicine-strategic-plan.pdf"
+  },
+  {
+    title: "Army OTSG Image",
+    type: "image",
+    category: "Media",
+    path: "references/source/army-otsg.png"
+  },
+  {
+    title: "DCCS Operational Framework 2027",
+    type: "presentation",
+    category: "DCCS Framework",
+    path: "references/source/dccs-operational-framework-2027.pptx"
+  },
+  {
+    title: "Evaluations Guidance and Philosophy - DCCS",
+    type: "pdf",
+    category: "Leadership",
+    path: "references/source/evaluations-guidance-philosophy-dccs.pdf"
+  },
+  {
+    title: "MOD/OOD/SOD Inpatient MOA 2026",
+    type: "pdf",
+    category: "Operations",
+    path: "references/source/mod-ood-sod-inpatient-moa-2026.pdf"
+  }
+];
 
 function save() {
   localStorage.setItem("bandaid6_history", JSON.stringify(history));
@@ -312,10 +523,182 @@ function setActive(active) {
 }
 
 function escapeHtml(s) {
-  return s.replace(/[&<>"']/g, c => ({
+  return String(s).replace(/[&<>"']/g, c => ({
     "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
   })[c]);
 }
+
+function referenceLabel(type) {
+  const labels = {
+    pdf: "PDF",
+    image: "IMG",
+    presentation: "PPT",
+    spreadsheet: "XLS"
+  };
+  return labels[type] || "REF";
+}
+
+// ---- RAG: in-browser keyword retrieval over committed reference chunks ----
+let CORPUS = [];           // [{ refId, title, section, text, tokens: Set<string> }]
+let CORPUS_LOADED = false;
+let CORPUS_LOADING = null;
+let DF = new Map();        // token -> document (chunk) frequency
+let LAST_CITED_TITLES = new Set();
+
+const STOPWORDS = new Set(("a an and or the of to in on for with by at from is are was were be been being " +
+  "this that these those it its as if then than but not no nor so do does did doing have has had having " +
+  "i you he she we they me him her us them my your his their our its any all each every some most more " +
+  "less few many much can will would could should may might must shall about into over under up down out").split(" "));
+
+function tokenize(s) {
+  const out = [];
+  const lower = String(s || "").toLowerCase();
+  const re = /[a-z0-9][a-z0-9\-]{1,}/g;
+  let m;
+  while ((m = re.exec(lower)) !== null) {
+    const t = m[0];
+    if (t.length < 3) continue;
+    if (STOPWORDS.has(t)) continue;
+    out.push(t);
+  }
+  return out;
+}
+
+async function loadCorpus() {
+  if (CORPUS_LOADED) return CORPUS;
+  if (CORPUS_LOADING) return CORPUS_LOADING;
+  CORPUS_LOADING = (async () => {
+    try {
+      if (window.location.protocol === "file:") {
+        CORPUS_LOADED = true;
+        return CORPUS;
+      }
+      const idxRes = await fetch("references/extracted/index.json", { cache: "no-store" });
+      if (!idxRes.ok) throw new Error(`index HTTP ${idxRes.status}`);
+      const idx = await idxRes.json();
+      const files = await Promise.all(idx.map(async (entry) => {
+        try {
+          const r = await fetch(entry.file, { cache: "no-store" });
+          if (!r.ok) return null;
+          return await r.json();
+        } catch { return null; }
+      }));
+      const docs = [];
+      for (const f of files) {
+        if (!f || !Array.isArray(f.chunks)) continue;
+        for (const ch of f.chunks) {
+          const tokens = tokenize(ch.text);
+          if (!tokens.length) continue;
+          docs.push({
+            refId: f.id,
+            title: f.title || f.id,
+            section: ch.section || "",
+            text: ch.text,
+            tokens: new Set(tokens)
+          });
+        }
+      }
+      CORPUS = docs;
+      // build DF (token -> # of chunks containing token)
+      const df = new Map();
+      for (const d of docs) {
+        for (const t of d.tokens) df.set(t, (df.get(t) || 0) + 1);
+      }
+      DF = df;
+      CORPUS_LOADED = true;
+      return CORPUS;
+    } catch (err) {
+      console.warn("loadCorpus failed:", err);
+      CORPUS_LOADED = true; // give up gracefully; site still works without RAG
+      return CORPUS;
+    } finally {
+      CORPUS_LOADING = null;
+    }
+  })();
+  return CORPUS_LOADING;
+}
+
+function retrieveTopK(query, k = 4) {
+  if (!CORPUS.length) return [];
+  const qTokens = Array.from(new Set(tokenize(query)));
+  if (!qTokens.length) return [];
+  const N = CORPUS.length;
+  // IDF weight per query token
+  const idf = new Map();
+  for (const t of qTokens) {
+    const df = DF.get(t) || 0;
+    // smoothed idf
+    idf.set(t, Math.log(1 + (N - df + 0.5) / (df + 0.5)));
+  }
+  const scored = [];
+  for (const d of CORPUS) {
+    let score = 0;
+    let hits = 0;
+    for (const t of qTokens) {
+      if (d.tokens.has(t)) {
+        score += idf.get(t) || 0;
+        hits += 1;
+      }
+    }
+    if (hits === 0) continue;
+    // small bonus for multi-token matches
+    score *= 1 + 0.1 * (hits - 1);
+    scored.push({ doc: d, score });
+  }
+  scored.sort((a, b) => b.score - a.score);
+  return scored.slice(0, k).map(s => s.doc);
+}
+
+function buildSnippetBlock(snippets) {
+  if (!snippets.length) return "";
+  const lines = ["REFERENCE SNIPPETS (cite as [Title, section] when used):"];
+  for (const s of snippets) {
+    const tag = s.section ? `[${s.title}, ${s.section}]` : `[${s.title}]`;
+    // trim excessively long snippet text to keep prompt compact
+    const body = s.text.length > 900 ? s.text.slice(0, 900) + "…" : s.text;
+    lines.push(`${tag}\n${body}`);
+  }
+  return lines.join("\n\n");
+}
+
+async function loadReferences() {
+  if (!referencesGrid) return;
+  try {
+    let refs = FALLBACK_REFERENCES;
+    if (window.location.protocol !== "file:") {
+      const res = await fetch("references/references.json", { cache: "no-store" });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      refs = await res.json();
+    }
+    if (referencesCount) {
+      referencesCount.textContent = `${refs.length} source files`;
+    }
+    referencesGrid.innerHTML = refs.map(ref => {
+      const safeTitle = escapeHtml(ref.title || "Reference");
+      const safeCategory = escapeHtml(ref.category || "Reference");
+      const safeType = escapeHtml(referenceLabel(ref.type).toLowerCase());
+      const safePath = encodeURI(ref.path || "#");
+      const cited = (typeof LAST_CITED_TITLES !== "undefined" && LAST_CITED_TITLES.has(ref.title)) ? " cited" : "";
+      return `
+        <a class="reference-row${cited}" href="${safePath}" target="_blank" rel="noopener" data-title="${safeTitle}">
+          <span class="reference-title">${safeTitle}</span>
+          <span class="reference-meta">${safeCategory} · ${safeType}</span>
+        </a>`;
+    }).join("");
+  } catch (err) {
+    if (referencesCount) {
+      referencesCount.textContent = "Unavailable";
+    }
+    referencesGrid.innerHTML = `<div class="reference-empty">Reference library could not load: ${escapeHtml(err.message)}</div>`;
+  }
+}
+
+referencesToggle.addEventListener("click", () => {
+  const showing = app.classList.toggle("show-references");
+  referencesToggle.classList.toggle("active", showing);
+  referencesToggle.textContent = showing ? "Hide references" : "References";
+  if (showing) loadReferences();
+});
 
 function render() {
   chat.innerHTML = "";
@@ -439,6 +822,22 @@ async function send() {
     parts: [{ text: m.text }]
   }));
 
+  // RAG: retrieve top snippets for the latest user message and inject them
+  // as an extra part on the last user turn. Never allow this to break send().
+  try {
+    const snippets = retrieveTopK(text, 4);
+    LAST_CITED_TITLES = new Set(snippets.map(s => s.title));
+    const snippetText = buildSnippetBlock(snippets);
+    if (snippetText && contents.length) {
+      const last = contents[contents.length - 1];
+      if (last && Array.isArray(last.parts)) {
+        last.parts.push({ text: snippetText });
+      }
+    }
+  } catch (_) {
+    LAST_CITED_TITLES = new Set();
+  }
+
   try {
     const generationConfig = { temperature };
     if (!Number.isNaN(thinkingBudget)) {
@@ -462,6 +861,27 @@ async function send() {
       data?.error?.message ||
       "(no response)";
     botBody.textContent = reply;
+    // Citation highlighting: union LAST_CITED_TITLES with any [Title, …] markers
+    // that actually appear in the reply, then toggle .cited on matching rows.
+    try {
+      const cited = new Set(LAST_CITED_TITLES);
+      if (CORPUS && CORPUS.length) {
+        for (const ref of CORPUS) {
+          if (!ref || !ref.title) continue;
+          // Match [Title,  or [Title]
+          const escaped = ref.title.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+          const re = new RegExp("\\[" + escaped + "(?:,|\\])", "i");
+          if (re.test(reply)) cited.add(ref.title);
+        }
+      }
+      LAST_CITED_TITLES = cited;
+      if (referencesGrid) {
+        referencesGrid.querySelectorAll(".reference-row").forEach(row => {
+          const title = row.getAttribute("data-title") || "";
+          row.classList.toggle("cited", cited.has(title));
+        });
+      }
+    } catch (_) { /* highlighting is decorative */ }
     history.push({ role: "model", text: reply });
     save();
   } catch (err) {
@@ -475,6 +895,7 @@ async function send() {
 sendBtn.addEventListener("click", send);
 
 render();
+loadCorpus();
 autoSize();
 </script>
 </body>

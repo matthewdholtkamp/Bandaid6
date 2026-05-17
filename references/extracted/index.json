@@ -1,0 +1,38 @@
+[
+  {
+    "id": "army-medicine-strategic-plan-2026",
+    "title": "2026 Army Medicine Strategic Plan",
+    "category": "Army Strategy",
+    "type": "pdf",
+    "chunk_count": 25,
+    "char_count": 45290,
+    "file": "references/extracted/army-medicine-strategic-plan-2026.json"
+  },
+  {
+    "id": "dccs-operational-framework-2027",
+    "title": "DCCS Operational Framework 2027",
+    "category": "DCCS Framework",
+    "type": "presentation",
+    "chunk_count": 5,
+    "char_count": 3571,
+    "file": "references/extracted/dccs-operational-framework-2027.json"
+  },
+  {
+    "id": "evaluations-guidance-philosophy-dccs",
+    "title": "Evaluations Guidance and Philosophy - DCCS",
+    "category": "Leadership",
+    "type": "pdf",
+    "chunk_count": 7,
+    "char_count": 4261,
+    "file": "references/extracted/evaluations-guidance-philosophy-dccs.json"
+  },
+  {
+    "id": "mod-ood-sod-inpatient-moa-2026",
+    "title": "MOD/OOD/SOD Inpatient MOA 2026",
+    "category": "Operations",
+    "type": "pdf",
+    "chunk_count": 8,
+    "char_count": 6545,
+    "file": "references/extracted/mod-ood-sod-inpatient-moa-2026.json"
+  }
+]
