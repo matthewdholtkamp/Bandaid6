@@ -178,6 +178,13 @@
      - Inline **bold** (mid-paragraph)                            -> gold only, not bold */
   .md-bold-gold { color: var(--army-gold); font-weight: 700; }
   .md-inline-gold { color: var(--army-gold); font-weight: inherit; }
+  /* Markdown thematic break (e.g. `***` on its own line) -> gold section divider. */
+  .md-divider {
+    border: 0;
+    border-top: 1px solid var(--army-gold);
+    opacity: 0.45;
+    margin: 10px 0;
+  }
   @media (max-width: 900px) {
     .starter-chips { justify-content: flex-start; }
     .chip { font-size: 13px; padding: 9px 14px; }
@@ -627,6 +634,10 @@ function escapeHtml(s) {
 function renderBubble(el, text) {
   let html = escapeHtml(text);
 
+  // Pre-pass: markdown thematic break (3+ asterisks, optionally space-separated, on their own line)
+  // -> horizontal rule. Use a sentinel token so later asterisk passes don't touch it.
+  html = html.replace(/(^|\n)[ \t]*(?:\*[ \t]*){3,}(?=\n|$)/g, '$1\x00HR\x00');
+
   // First pass: section-leading **bold** -> bold + gold.
   // A "section lead" is **...** at start of string, or right after a newline (with optional whitespace,
   // list bullet, or numbered-list prefix like "1. ").
@@ -642,6 +653,13 @@ function renderBubble(el, text) {
   // Requires non-whitespace immediately inside both * markers so we don't eat list bullets ("* item")
   // or orphan asterisks. Also avoids matching across word boundaries on the outside.
   html = html.replace(/(^|[^*\w])\*(?!\s)([^*\n]+?)(?<!\s)\*(?!\w)/g, '$1<span class="md-inline-gold">$2</span>');
+
+  // Safety net: strip any orphan asterisks that didn't match a markdown rule above.
+  // (e.g. unmatched/leftover `*` from streaming or malformed emphasis.)
+  html = html.replace(/\*+/g, '');
+
+  // Now swap the HR sentinel for the real <hr> element.
+  html = html.replace(/\x00HR\x00/g, '<hr class="md-divider">');
 
   const leadershipBtn = '<a class="leadership-link-btn" href="https://matthewdholtkamp.github.io/Leadership/" target="_blank" rel="noopener">Leadership Philosophy &rarr;</a>';
   // Match the URL with or without trailing slash, and tolerate a preceding "see " phrase.
