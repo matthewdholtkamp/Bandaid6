@@ -1,4 +1,4 @@
-// BAND-AID 6 — Cloudflare Worker proxy for Gemini API
+// BAND-AID 6 — Cloudflare Worker proxy for Gemini API (streaming)
 // Deploy this on Cloudflare Workers. Add GEMINI_API_KEY as a secret:
 //   wrangler secret put GEMINI_API_KEY
 //
@@ -42,12 +42,16 @@ export default {
 
     const primaryModel = body.model || "gemini-3.1-flash-lite";
     const fallbackModel = body.fallbackModel || "gemini-2.5-flash";
-
-    // Pass through whatever generationConfig the client sent (temperature, thinkingConfig, etc.)
     const generationConfig = body.generationConfig || { temperature: 0.7 };
 
+    // Decide whether the client wants streaming. Default to streaming.
+    const url = new URL(request.url);
+    const wantsStream = url.searchParams.get("stream") !== "0" && body.stream !== false;
+
+    const endpoint = wantsStream ? "streamGenerateContent?alt=sse" : "generateContent";
+
     const callModel = (model) => fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${env.GEMINI_API_KEY}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/${model}:${endpoint}${wantsStream ? "&" : "?"}key=${env.GEMINI_API_KEY}`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -72,6 +76,33 @@ export default {
       usedModel = fallbackModel;
     }
 
+    // Non-OK responses: return as JSON for clean error handling on the client.
+    if (!upstream.ok) {
+      const errText = await upstream.text();
+      return new Response(errText, {
+        status: upstream.status,
+        headers: {
+          ...corsHeaders,
+          "Content-Type": "application/json",
+          "X-Model-Used": usedModel
+        }
+      });
+    }
+
+    if (wantsStream) {
+      // Pipe the Server-Sent Events stream straight through to the browser.
+      return new Response(upstream.body, {
+        status: 200,
+        headers: {
+          ...corsHeaders,
+          "Content-Type": "text/event-stream; charset=utf-8",
+          "Cache-Control": "no-cache, no-transform",
+          "X-Model-Used": usedModel
+        }
+      });
+    }
+
+    // Non-streaming fallback (legacy path).
     const data = await upstream.text();
     return new Response(data, {
       status: upstream.status,

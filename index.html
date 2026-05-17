@@ -925,7 +925,8 @@ async function send() {
     if (!Number.isNaN(thinkingBudget)) {
       generationConfig.thinkingConfig = { thinkingBudget };
     }
-    const res = await fetch(workerUrl, {
+    const streamUrl = workerUrl + (workerUrl.includes("?") ? "&" : "?") + "stream=1";
+    const res = await fetch(streamUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -936,13 +937,60 @@ async function send() {
         generationConfig
       })
     });
-    const data = await res.json();
-    typing.remove();
-    const reply =
-      data?.candidates?.[0]?.content?.parts?.map(p => p.text).join("") ||
-      data?.error?.message ||
-      "(no response)";
-    renderBubble(botBody, reply);
+
+    let reply = "";
+    const contentType = res.headers.get("Content-Type") || "";
+    if (!res.ok) {
+      // Error path: read as JSON to extract a clean error message.
+      const errData = await res.json().catch(() => null);
+      typing.remove();
+      reply = errData?.error?.message || ("HTTP " + res.status);
+      botBody.textContent = reply;
+    } else if (contentType.includes("text/event-stream") && res.body) {
+      // Streaming path: parse SSE chunks and append text as it arrives.
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+      let firstChunk = true;
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        // SSE events are separated by blank lines. Each event has one or more "data: ..." lines.
+        const parts = buffer.split("\n\n");
+        buffer = parts.pop() || "";
+        for (const evt of parts) {
+          const lines = evt.split("\n");
+          for (const line of lines) {
+            if (!line.startsWith("data:")) continue;
+            const payload = line.slice(5).trim();
+            if (!payload || payload === "[DONE]") continue;
+            try {
+              const json = JSON.parse(payload);
+              const text = json?.candidates?.[0]?.content?.parts?.map(p => p.text).filter(Boolean).join("") || "";
+              if (text) {
+                if (firstChunk) { typing.remove(); firstChunk = false; }
+                reply += text;
+                botBody.textContent = reply;
+                chat.scrollTop = chat.scrollHeight;
+              }
+            } catch (_) { /* ignore partial JSON */ }
+          }
+        }
+      }
+      if (firstChunk) typing.remove();
+      if (!reply) reply = "(no response)";
+      renderBubble(botBody, reply);
+    } else {
+      // Non-streaming fallback (legacy JSON response).
+      const data = await res.json();
+      typing.remove();
+      reply =
+        data?.candidates?.[0]?.content?.parts?.map(p => p.text).join("") ||
+        data?.error?.message ||
+        "(no response)";
+      renderBubble(botBody, reply);
+    }
     // Citation highlighting: union LAST_CITED_TITLES with any [Title, …] markers
     // that actually appear in the reply, then toggle .cited on matching rows.
     try {
