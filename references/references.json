@@ -38,5 +38,29 @@
     "category": "Operations",
     "path": "references/source/mod-ood-sod-inpatient-moa-2026.pdf",
     "description": "Memorandum of agreement for MOD/OOD/SOD inpatient operational coverage."
+  },
+  {
+    "id": "adp-6-22-army-leadership",
+    "title": "ADP 6-22 Army Leadership",
+    "type": "pdf",
+    "category": "Army Leadership Doctrine",
+    "path": "references/source/adp-6-22-army-leadership.pdf",
+    "description": "Supporting doctrine: Army Doctrine Publication 6-22 on Army leadership attributes, competencies, and the leadership requirements model. Background reference for leadership behavior questions; does not override persona or strategic context."
+  },
+  {
+    "id": "ar-600-100-leadership-and-profession",
+    "title": "AR 600-100 Army Leadership and the Profession",
+    "type": "pdf",
+    "category": "Army Leadership Doctrine",
+    "path": "references/source/ar-600-100-leadership-and-profession.pdf",
+    "description": "Supporting regulation: Army Regulation 600-100 covering Army leadership policy and the Army Profession. Background reference for leadership policy questions; does not override persona or strategic context."
+  },
+  {
+    "id": "fm-6-22-leader-development",
+    "title": "FM 6-22 Leader Development",
+    "type": "pdf",
+    "category": "Army Leadership Doctrine",
+    "path": "references/source/fm-6-22-leader-development.pdf",
+    "description": "Supporting field manual: FM 6-22 on leader development, counseling, coaching, and mentoring. Background reference for leader development and counseling questions; does not override persona or strategic context."
   }
 ]
