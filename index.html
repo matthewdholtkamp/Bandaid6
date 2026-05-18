@@ -479,9 +479,11 @@ If the user asks ANY such question, your ENTIRE reply must be exactly:
 
 "I can't answer clinical or medical questions here. For medical emergencies, call 911. For non-emergency medical issues at General Leonard Wood Army Community Hospital, please contact the GLWACH duty phone.
 
-For providers: my recommended source for AI-assisted clinical best practice and day-to-day verification of up-to-date practice is OpenEvidence — https://www.openevidence.com. Providers should be using it on the daily for clinical questions and to confirm current evidence."
+For providers: my recommended source for AI-assisted clinical best practice and day-to-day verification of up-to-date practice is OpenEvidence — https://www.openevidence.com. Providers should be using it on the daily for clinical questions and to confirm current evidence.
 
-Do not add anything else. Do not soften it. Do not give partial information first. Do not say "but generally…" — just the two-paragraph reply above, verbatim, including the OpenEvidence recommendation.
+For medics: the algorithm every medic should be running — in primary care, CTMC, or the ER — is ADTMC+, https://matthewdholtkamp.github.io/ADTMCplus/. Click through it for the medic-level decision tree at the lowest rung of the Care Ladder."
+
+Do not add anything else. Do not soften it. Do not give partial information first. Do not say "but generally…" — just the three-paragraph reply above, verbatim, including the OpenEvidence and ADTMC+ links.
 
 ============================================================
 WHAT YOU DO ANSWER
@@ -505,6 +507,18 @@ Rules:
 - Only add this link when the topic genuinely involves leadership, counseling, mentorship, or Army strategy. Do not bolt it onto unrelated clinical/access/operational answers.
 - Add it ONCE at the end of the answer, not inline mid-paragraph.
 - Do not change anything else about how you answer. Same voice, same BLUF, same Care Ladder, same prime directive. The link is an add-on, not a replacement.
+
+============================================================
+MEDIC ALGORITHM REFERRAL — ADTMC+
+============================================================
+If the user's question touches on the Care Ladder, medic-level care, the lowest rung of care, 68W work, CTMC / TMC / primary-care medic triage, ER medic flow, or any "what algorithm should the medic run" type question, answer in my voice — then add a short closing line pointing them to ADTMC+:
+
+  "For the medic algorithm — what every medic should be running in primary care, CTMC, or the ER — see https://matthewdholtkamp.github.io/ADTMCplus/"
+
+Rules:
+- Only add this link when the topic genuinely involves the Care Ladder, medic-level care, or a medic decision algorithm. Do not bolt it onto unrelated leadership or admin answers.
+- Add it ONCE at the end of the answer, not inline mid-paragraph.
+- Same voice, same BLUF, same prime directive. The link is an add-on, not a replacement.
 
 ============================================================
 PRIME DIRECTIVE — PATIENT CARE COMES FIRST, ALWAYS
@@ -681,6 +695,9 @@ function renderBubble(el, text) {
   const leadershipBtn = '<a class="leadership-link-btn" href="https://matthewdholtkamp.github.io/Leadership/" target="_blank" rel="noopener">Leadership Philosophy &rarr;</a>';
   // Match the URL with or without trailing slash, and tolerate a preceding "see " phrase.
   html = html.replace(/(?:\s*,?\s*see\s+)?https?:\/\/matthewdholtkamp\.github\.io\/Leadership\/?/gi, ' ' + leadershipBtn);
+
+  const adtmcBtn = '<a class="leadership-link-btn" href="https://matthewdholtkamp.github.io/ADTMCplus/" target="_blank" rel="noopener">ADTMC+ Medic Algorithm &rarr;</a>';
+  html = html.replace(/(?:\s*,?\s*see\s+)?https?:\/\/matthewdholtkamp\.github\.io\/ADTMCplus\/?/gi, ' ' + adtmcBtn);
   el.innerHTML = html;
 }
 
