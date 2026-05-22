@@ -4,21 +4,25 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>BAND-AID 6 — LTC Holtkamp</title>
+<link rel="icon" href="data:," />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --army-black: #000000;
-    --army-gold:  #FFCC01;
-    --bg:         #0a0a0a;
-    --panel:      #141414;
-    --panel-2:    #1c1c1c;
-    --text:       #f4f4f4;
-    --muted:      #9a9a9a;
-    --border:     #2a2a2a;
-    --user-bg:    #1f1f1f;
-    --bot-bg:     #161616;
+    --army-black: #11100d;
+    --army-gold:  #f2c230;
+    --gold-soft:  #ffe08a;
+    --bg:         #12110f;
+    --panel:      #1b1a17;
+    --panel-2:    #23211d;
+    --text:       #f7f1e6;
+    --muted:      #b7ad9b;
+    --border:     #343026;
+    --border-soft:#464032;
+    --user-bg:    #25231f;
+    --bot-bg:     #1a1916;
+    --focus:      rgba(242, 194, 48, 0.42);
   }
   * { box-sizing: border-box; }
   html, body {
@@ -29,10 +33,21 @@
     width: 100vw;
   }
   body { display: flex; flex-direction: column; min-height: 100vh; }
+  .sr-only {
+    border: 0;
+    clip: rect(0 0 0 0);
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    padding: 0;
+    position: absolute;
+    white-space: nowrap;
+    width: 1px;
+  }
   header {
     background: var(--army-black);
-    border-bottom: 2px solid var(--army-gold);
-    padding: 14px 20px;
+    border-bottom: 1px solid rgba(242, 194, 48, 0.65);
+    padding: 14px 24px;
     display: flex; align-items: center; justify-content: space-between;
     position: sticky; top: 0; z-index: 5;
     min-width: 0;
@@ -42,22 +57,31 @@
   .star { color: var(--army-gold); font-size: 22px; line-height: 1; }
   .title {
     font-family: 'Oswald', sans-serif;
-    letter-spacing: 2px; font-weight: 700; font-size: 18px; color: #fff;
+    letter-spacing: 2px; font-weight: 700; font-size: 18px; color: var(--text);
   }
   .subtitle {
     font-family: 'Oswald', sans-serif;
-    letter-spacing: 3px; font-size: 12px; color: var(--army-gold);
+    letter-spacing: 2px; font-size: 12px; color: var(--gold-soft);
   }
   .reset-link {
     background: transparent; border: none; color: var(--muted);
-    font-family: inherit; font-size: 12px; cursor: pointer; padding: 6px 8px;
+    border-radius: 8px;
+    font-family: inherit; font-size: 12px; cursor: pointer; padding: 7px 8px;
   }
   .reset-link:hover { color: var(--army-gold); }
+  .reset-link:focus-visible,
+  .reference-toggle:focus-visible,
+  .chip:focus-visible,
+  .send:focus-visible,
+  .leadership-link-btn:focus-visible {
+    outline: 3px solid var(--focus);
+    outline-offset: 3px;
+  }
   .header-actions { display: flex; align-items: center; gap: 8px; }
   .reference-toggle {
-    background: transparent;
+    background: rgba(255, 255, 255, 0.02);
     border: 1px solid var(--border);
-    border-radius: 999px;
+    border-radius: 8px;
     color: var(--text);
     cursor: pointer;
     font-family: inherit;
@@ -76,9 +100,9 @@
     flex: 1;
     display: flex; flex-direction: column;
     width: 100%;
-    max-width: min(880px, 100vw);
+    max-width: min(900px, 100vw);
     margin: 0 auto;
-    padding: 0 16px;
+    padding: 0 20px;
     position: relative;
     min-width: 0;
     overflow-x: hidden;
@@ -88,6 +112,7 @@
   .app.empty {
     justify-content: center;
     align-items: stretch;
+    padding-bottom: 7vh;
   }
   .app.empty.show-references {
     justify-content: flex-start;
@@ -102,8 +127,17 @@
     margin-bottom: 14px;
   }
   .app.empty .composer-wrap { position: static; padding: 0; background: none; }
-  .app.empty .composer-wrap .footer-note { margin-top: 14px; }
+  .app.empty .composer-wrap .footer-note { margin-top: 12px; }
   .app.empty.show-references .composer textarea { min-height: 72px; }
+  @media (max-height: 760px) {
+    .app.empty {
+      justify-content: flex-start;
+      padding-top: 24px;
+    }
+    .app.empty.show-references {
+      padding-top: 18px;
+    }
+  }
 
   /* ACTIVE STATE — messages scroll, composer pinned to bottom */
   .app.active #chat {
@@ -116,42 +150,58 @@
     position: sticky;
     bottom: 0;
     padding: 12px 0 18px;
-    background: linear-gradient(to top, var(--bg) 75%, transparent);
+    background: linear-gradient(to top, var(--bg) 78%, rgba(18, 17, 15, 0));
   }
 
   .greet { text-align: center; margin-bottom: 24px; }
   .greet h1 {
     font-family: 'Oswald', sans-serif;
     color: var(--army-gold);
-    letter-spacing: 4px;
-    font-size: 42px;
-    margin: 0 0 8px;
+    letter-spacing: 3px;
+    font-size: 46px;
+    line-height: 1;
+    margin: 0 0 14px;
   }
-  .greet p { color: var(--muted); margin: 0; font-size: 15px; }
+  .greet p {
+    color: var(--text);
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 1.35;
+  }
+  .persona-note {
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 500;
+    margin-top: 8px;
+  }
 
   .starter-chips {
-    display: flex;
-    flex-wrap: wrap;
+    display: grid;
     gap: 10px;
-    justify-content: center;
-    margin-top: 22px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin: 26px auto 0;
+    max-width: 720px;
   }
   .chip {
-    background: var(--panel);
+    background: linear-gradient(180deg, var(--panel-2), var(--panel));
     color: var(--text);
     border: 1px solid var(--border);
-    border-radius: 999px;
-    padding: 10px 18px;
+    border-radius: 8px;
+    padding: 13px 15px;
     font-family: inherit;
     font-size: 14px;
-    line-height: 1.3;
+    line-height: 1.35;
     cursor: pointer;
-    transition: background 0.12s ease, border-color 0.12s ease, color 0.12s ease, transform 0.08s ease;
+    min-height: 64px;
+    text-align: left;
+    transition: background 0.12s ease, border-color 0.12s ease, color 0.12s ease, transform 0.08s ease, box-shadow 0.12s ease;
   }
   .chip:hover {
-    background: #1f1f1f;
-    border-color: var(--army-gold);
-    color: var(--army-gold);
+    background: var(--panel-2);
+    border-color: rgba(242, 194, 48, 0.78);
+    box-shadow: 0 0 0 1px rgba(242, 194, 48, 0.12);
+    color: var(--gold-soft);
   }
   .chip:active { transform: scale(0.97); }
 
@@ -166,7 +216,7 @@
     text-transform: uppercase;
     text-decoration: none;
     padding: 8px 14px;
-    border-radius: 999px;
+    border-radius: 8px;
     margin: 6px 0;
     transition: background 0.12s ease, transform 0.08s ease;
   }
@@ -186,8 +236,15 @@
     margin: 10px 0;
   }
   @media (max-width: 900px) {
-    .starter-chips { justify-content: flex-start; }
-    .chip { font-size: 13px; padding: 9px 14px; }
+    .starter-chips {
+      grid-template-columns: 1fr;
+      max-width: none;
+    }
+    .chip {
+      font-size: 13px;
+      min-height: auto;
+      padding: 11px 13px;
+    }
   }
 
   .references-panel {
@@ -241,7 +298,7 @@
     font-size: 12px;
   }
   .reference-row:hover {
-    background: var(--panel);
+    background: var(--panel-2);
   }
   .reference-row.cited {
     background: rgba(196, 164, 92, 0.12);
@@ -276,17 +333,17 @@
     flex: 0 0 36px; height: 36px; width: 36px;
     border-radius: 50%;
     background: var(--army-gold);
-    color: #000;
+    color: #11100d;
     font-family: 'Oswald', sans-serif;
     font-weight: 700;
     display: flex; align-items: center; justify-content: center;
     font-size: 14px;
   }
-  .msg.user .avatar { background: #2a2a2a; color: var(--army-gold); }
+  .msg.user .avatar { background: var(--panel-2); color: var(--gold-soft); }
   .bubble {
     background: var(--bot-bg);
     border: 1px solid var(--border);
-    border-radius: 14px;
+    border-radius: 10px;
     padding: 14px 16px;
     line-height: 1.55;
     font-size: 15px;
@@ -303,13 +360,17 @@
 
   /* Composer — big, auto-growing, Claude-style */
   .composer {
-    background: var(--panel);
-    border: 1px solid var(--border);
-    border-radius: 22px;
-    padding: 14px 16px 14px 20px;
+    background: linear-gradient(180deg, #22201c, var(--panel));
+    border: 1px solid var(--border-soft);
+    border-radius: 12px;
+    padding: 15px 16px 15px 20px;
     display: flex; align-items: flex-end; gap: 12px;
-    box-shadow: 0 6px 30px rgba(0,0,0,0.55);
+    box-shadow: 0 18px 48px rgba(0,0,0,0.38);
     min-width: 0;
+  }
+  .composer:focus-within {
+    border-color: rgba(242, 194, 48, 0.78);
+    box-shadow: 0 18px 48px rgba(0,0,0,0.38), 0 0 0 3px var(--focus);
   }
   .composer textarea {
     flex: 1;
@@ -325,11 +386,12 @@
     min-width: 0;
     padding: 6px 4px;
   }
+  .composer textarea::placeholder { color: #918775; }
   .send {
     flex: 0 0 48px; height: 48px; width: 48px;
-    border-radius: 50%;
+    border-radius: 8px;
     background: var(--army-gold);
-    color: #000;
+    color: #11100d;
     border: none;
     cursor: pointer;
     display: flex; align-items: center; justify-content: center;
@@ -342,8 +404,9 @@
   .footer-note {
     text-align: center;
     color: var(--muted);
-    font-size: 11px;
-    margin-top: 8px;
+    font-size: 12px;
+    line-height: 1.4;
+    margin-top: 10px;
   }
   .typing { color: var(--muted); font-style: italic; font-size: 14px; }
 
@@ -372,9 +435,15 @@
       text-align: left;
     }
     .greet h1 {
-      font-size: 34px;
+      font-size: 36px;
       letter-spacing: 0;
       overflow-wrap: anywhere;
+    }
+    .greet p {
+      font-size: 17px;
+    }
+    .persona-note {
+      font-size: 12px;
     }
     .reference-row {
       align-items: start;
@@ -397,7 +466,7 @@
     </div>
   </div>
   <div class="header-actions">
-    <button class="reference-toggle" id="referencesToggle" type="button">References</button>
+    <button class="reference-toggle" id="referencesToggle" type="button" aria-controls="referencesPanel" aria-expanded="false">References</button>
     <button class="reset-link" id="reset" title="Start a new conversation">New conversation</button>
   </div>
 </header>
@@ -405,12 +474,13 @@
 <div class="app empty" id="app">
   <div class="greet" id="greet">
     <h1>BAND-AID 6</h1>
-    <p>Ask Dr. Holtkamp's persona a question.</p>
+    <p>What can I help you think through?</p>
+    <div class="persona-note">AI persona of LTC Holtkamp for leadership, access, quality, staff care, and hospital operations.</div>
     <div class="starter-chips" id="starterChips">
-      <button class="chip" type="button" data-prompt="How do you lead up the chain?">How do you lead up the chain?</button>
-      <button class="chip" type="button" data-prompt="Readiness or access — how do you call it?">Readiness or access — how do you call it?</button>
-      <button class="chip" type="button" data-prompt="Safety, burnout, access — how do you balance them?">Safety, burnout, access — how do you balance them?</button>
-      <button class="chip" type="button" data-prompt="Thin on staff — what do you cut first?">Thin on staff — what do you cut first?</button>
+      <button class="chip" type="button" data-prompt="How should I handle a hard conversation with a teammate?">How should I handle a hard conversation with a teammate?</button>
+      <button class="chip" type="button" data-prompt="How do we use the Care Ladder when access is tight?">How do we use the Care Ladder when access is tight?</button>
+      <button class="chip" type="button" data-prompt="How do we protect the team when everyone is stretched?">How do we protect the team when everyone is stretched?</button>
+      <button class="chip" type="button" data-prompt="How do we fix a process without making it about blame?">How do we fix a process without making it about blame?</button>
     </div>
   </div>
 
@@ -418,12 +488,13 @@
 
   <div class="composer-wrap">
     <div class="composer">
-      <textarea id="input" placeholder="Type your question for Dr. Holtkamp's persona…" rows="3"></textarea>
-      <button class="send" id="send" title="Send">
+      <label class="sr-only" for="input">Ask BAND-AID 6 a leadership or hospital operations question</label>
+      <textarea id="input" placeholder="Type your question..." rows="3"></textarea>
+      <button class="send" id="send" type="button" title="Send" aria-label="Send question">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>
       </button>
     </div>
-    <div class="footer-note">Persona response — not official medical or command guidance. For medical emergencies call 911.</div>
+    <div class="footer-note">For leadership and hospital operations only. Not medical advice; emergencies: call 911.</div>
     <section class="references-panel" id="referencesPanel" aria-label="Reference library">
       <div class="references-header">
         <h2>References</h2>
@@ -870,6 +941,7 @@ referencesToggle.addEventListener("click", () => {
   const showing = app.classList.toggle("show-references");
   referencesToggle.classList.toggle("active", showing);
   referencesToggle.textContent = showing ? "Hide references" : "References";
+  referencesToggle.setAttribute("aria-expanded", showing ? "true" : "false");
   if (showing) loadReferences();
 });
 
