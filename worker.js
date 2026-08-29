@@ -60,7 +60,9 @@ export default {
         body: JSON.stringify({
           systemInstruction: body.systemInstruction,
           contents: body.contents,
-          generationConfig
+          generationConfig,
+          tools: body.tools,
+          safetySettings: body.safetySettings
         })
       }
     );

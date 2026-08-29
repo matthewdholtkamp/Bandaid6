@@ -2,7 +2,7 @@
 
 Single-page web app that responds as a persona of LTC Matthew Holtkamp — Deputy Commander for Clinical Services (DCCS) at GLWACH and MSCoE Surgeon at Fort Leonard Wood.
 
-The front-end is static HTML/CSS/JS hosted on GitHub Pages. The Gemini API key never lives in the browser — a small Cloudflare Worker proxies requests and holds the key as a secret.
+The front-end is static HTML/CSS/JS hosted on GitHub Pages. The Gemini API key never lives in the browser — a small Cloudflare Worker proxies requests and holds the key as a secret. The proxy also passes through Gemini tool, safety, and generation settings for the other approved pages that share it.
 
 ## Architecture
 
