@@ -10,6 +10,60 @@ const ALLOWED_ORIGINS = [
   "http://127.0.0.1:8000"
 ];
 
+export function mergeStreamingResponse(rawSse) {
+  const events = rawSse
+    .split(/\r?\n/)
+    .filter((line) => line.startsWith("data:"))
+    .map((line) => line.slice(5).trim())
+    .filter((line) => line && line !== "[DONE]")
+    .map((line) => JSON.parse(line));
+
+  if (events.length === 0) {
+    return JSON.parse(rawSse);
+  }
+
+  let text = "";
+  const audioByMimeType = new Map();
+  let candidate = {};
+  let responseMetadata = {};
+
+  for (const event of events) {
+    const nextCandidate = event.candidates?.[0];
+    if (nextCandidate) {
+      candidate = { ...candidate, ...nextCandidate };
+      for (const part of nextCandidate.content?.parts || []) {
+        if (typeof part.text === "string") text += part.text;
+        if (part.inlineData?.data) {
+          const mimeType = part.inlineData.mimeType || "application/octet-stream";
+          const chunks = audioByMimeType.get(mimeType) || [];
+          chunks.push(part.inlineData.data);
+          audioByMimeType.set(mimeType, chunks);
+        }
+      }
+    }
+    const { candidates, ...metadata } = event;
+    responseMetadata = { ...responseMetadata, ...metadata };
+  }
+
+  const parts = [];
+  if (text) parts.push({ text });
+  for (const [mimeType, chunks] of audioByMimeType) {
+    const binary = chunks.map((chunk) => atob(chunk)).join("");
+    parts.push({ inlineData: { mimeType, data: btoa(binary) } });
+  }
+
+  return {
+    ...responseMetadata,
+    candidates: [{
+      ...candidate,
+      content: {
+        ...(candidate.content || {}),
+        parts
+      }
+    }]
+  };
+}
+
 export default {
   async fetch(request, env) {
     const origin = request.headers.get("Origin") || "";
@@ -50,10 +104,12 @@ export default {
     const url = new URL(request.url);
     const wantsStream = url.searchParams.get("stream") !== "0" && body.stream !== false;
 
-    const endpoint = wantsStream ? "streamGenerateContent?alt=sse" : "generateContent";
+    // Gemini 3.x is most reliable through the streaming endpoint. For clients
+    // that need ordinary JSON, aggregate the SSE chunks before returning.
+    const endpoint = "streamGenerateContent?alt=sse";
 
     const callModel = (model) => fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${model}:${endpoint}${wantsStream ? "&" : "?"}key=${env.GEMINI_API_KEY}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/${model}:${endpoint}&key=${env.GEMINI_API_KEY}`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -106,9 +162,8 @@ export default {
       });
     }
 
-    // Non-streaming fallback (legacy path).
-    const data = await upstream.text();
-    return new Response(data, {
+    const data = mergeStreamingResponse(await upstream.text());
+    return new Response(JSON.stringify(data), {
       status: upstream.status,
       headers: {
         ...corsHeaders,
