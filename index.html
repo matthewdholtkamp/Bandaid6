@@ -1074,10 +1074,9 @@ async function send() {
 
   const cfg = window.BANDAID_CONFIG || {};
   const workerUrl = cfg.WORKER_URL;
-  const model = cfg.MODEL || "gemini-3.1-flash-lite";
-  const fallbackModel = cfg.FALLBACK_MODEL || "gemini-2.5-flash";
-  const temperature = typeof cfg.TEMPERATURE === "number" ? cfg.TEMPERATURE : 0.7;
-  const thinkingBudget = typeof cfg.THINKING_BUDGET === "number" ? cfg.THINKING_BUDGET : -1;
+  const model = cfg.MODEL || "gemini-3.5-flash-lite";
+  const fallbackModel = cfg.FALLBACK_MODEL || "gemini-3.7-flash";
+  const thinkingLevel = cfg.THINKING_LEVEL || "low";
 
   if (!workerUrl || workerUrl.includes("CHANGE-ME")) {
     typing.remove();
@@ -1108,10 +1107,7 @@ async function send() {
   }
 
   try {
-    const generationConfig = { temperature };
-    if (!Number.isNaN(thinkingBudget)) {
-      generationConfig.thinkingConfig = { thinkingBudget };
-    }
+    const generationConfig = { thinkingConfig: { thinkingLevel } };
     const streamUrl = workerUrl + (workerUrl.includes("?") ? "&" : "?") + "stream=1";
     const res = await fetch(streamUrl, {
       method: "POST",

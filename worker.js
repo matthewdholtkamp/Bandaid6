@@ -40,9 +40,11 @@ export default {
       });
     }
 
-    const primaryModel = body.model || "gemini-3.1-flash-lite";
-    const fallbackModel = body.fallbackModel || "gemini-2.5-flash";
-    const generationConfig = body.generationConfig || { temperature: 0.7 };
+    const primaryModel = body.model || "gemini-3.5-flash-lite";
+    const fallbackModel = body.fallbackModel || "gemini-3.7-flash";
+    const generationConfig = body.generationConfig || {
+      thinkingConfig: { thinkingLevel: "low" }
+    };
 
     // Decide whether the client wants streaming. Default to streaming.
     const url = new URL(request.url);

@@ -3,9 +3,7 @@
 // Example: https://bandaid6.your-subdomain.workers.dev
 window.BANDAID_CONFIG = {
   WORKER_URL: "https://bandaid6.mholtkamp.workers.dev",
-  MODEL: "gemini-3.1-flash-lite",
-  FALLBACK_MODEL: "gemini-2.5-flash",
-  TEMPERATURE: 0.7,
-  // Thinking budget: 0 = off, -1 = dynamic (model decides), or explicit token cap (e.g. 8192 for "high thinking")
-  THINKING_BUDGET: -1
+  MODEL: "gemini-3.5-flash-lite",
+  FALLBACK_MODEL: "gemini-3.7-flash",
+  THINKING_LEVEL: "low"
 };

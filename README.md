@@ -68,12 +68,8 @@ python3 -m http.server 8000
 
 ## Model & generation settings
 
-- **Default model:** `gemini-3.1-flash-lite` — swap in the UI dropdown.
-- **Temperature:** `0.4` (set in `config.js`). Low enough to stay in character, high enough for natural variation. Drop to `0.2` for more deterministic answers, raise to `0.7` for more conversational range.
-- **Thinking depth:** Flash Lite supports `thinkingConfig.thinkingBudget`. The UI exposes three options:
-  - **Off** — fastest, cheapest, no extended reasoning.
-  - **Dynamic** (default) — model decides how much to think per turn.
-  - **High** — `thinkingBudget: 8192`, deeper reasoning for nuanced questions (BH, ethics, command).
+- **Default model:** `gemini-3.5-flash-lite` with `gemini-3.7-flash` fallback.
+- **Thinking depth:** `low`, configured through Gemini 3's `thinkingConfig.thinkingLevel` setting for responsive chat while remaining compatible with both the primary and fallback models.
 
 ## Persona
 
